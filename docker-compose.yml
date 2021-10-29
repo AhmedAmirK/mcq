@@ -1,0 +1,66 @@
+version: '3.9'
+services:
+  mcq_test:
+    build: ./mcq_test
+    ports: 
+      - 8000:8000
+    volumes:
+      - ./mcq_test:/app
+    depends_on:
+      - test_db
+      - kafka
+
+  mcq_scoring:
+    build: ./mcq_scoring
+    command: 'python manage.py runserver 0.0.0.0:8000'
+    ports: 
+      - 8001:8000
+    volumes:
+      - ./mcq_scoring:/app
+    depends_on:
+      - scoring_db
+      - kafka
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - 2181:2181
+  kafka:
+    image: wurstmeister/kafka
+    container_name: kafka
+    ports:
+     - 9092:9092
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: kafka
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_CREATE_TOPICS: 'exam_submit:1:1'
+    volumes:
+     - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+      
+  test_db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: mcq_test_db
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - test-db-data:/var/lib/mysql
+    ports:
+      - 33066:3306
+
+  scoring_db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_DATABASE: mcq_scoring_db
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - scoring-db-data:/var/lib/mysql
+    ports:
+      - 33067:3306
+volumes:
+  test-db-data:
+  scoring-db-data:

@@ -83,6 +83,8 @@ DATABASES = {
         'NAME': 'mcq_scoring_db',
         'USER': 'root',
         'PASSWORD': 'root',
+        'HOST': 'scoring_db',
+        'PORT': '3306',
     }
 }
 
@@ -131,3 +133,5 @@ STATIC_URL = '/static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+KAFKA_SERVER = 'kafka:9092'
